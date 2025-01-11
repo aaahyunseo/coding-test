@@ -1,0 +1,28 @@
+import java.io.*;
+import java.util.PriorityQueue;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        PriorityQueue<Integer> priorityQueue = new PriorityQueue<>();
+        StringBuilder sb = new StringBuilder();
+
+        int n = Integer.parseInt(br.readLine());
+        for (int i = 0; i < n; i++) {
+            int input = Integer.parseInt(br.readLine());
+            if (input == 0) {
+                if (priorityQueue.isEmpty()) {
+                    sb.append("0").append("\n");
+                } else {
+                    sb.append(priorityQueue.poll()).append("\n");
+                }
+            } else {
+                priorityQueue.add(input);
+            }
+        }
+
+        bw.write(sb.toString());
+        bw.flush();
+    }
+}
