@@ -1,32 +1,41 @@
+// DFS(백트래킹)
 import java.util.*;
 
 class Solution {
-    static String[][] tickets;
-    static boolean[] visited;
-    static ArrayList<String> answer = new ArrayList<>();
+    boolean[] checks;
+    List<String> answer;
     
     public String[] solution(String[][] tickets) {
-        visited = new boolean[tickets.length];
-        this.tickets = tickets;
+        checks = new boolean[tickets.length];
+        answer = new ArrayList<>();
         
-        dfs(0, "ICN", "ICN");
-        Collections.sort(answer);
+        Arrays.sort(tickets, (a,b) -> a[1].compareTo(b[1]));
         
-        return answer.get(0).split(",");
+        dfs(0, "ICN", tickets);
+        
+        return answer.toArray(new String[0]);
     }
     
-    public void dfs(int depth, String start, String path) {
-        if (depth == tickets.length) {
-            answer.add(path);
-            return;
-        }
+    public boolean dfs(int idx, String start, String[][] tickets) {
+        answer.add(start);
         
-        for (int j=0; j<tickets.length; j++) {
-            if(!visited[j] && tickets[j][0].equals(start)) {
-                visited[j] = true;
-                dfs(depth+1, tickets[j][1], path + "," + tickets[j][1]);
-                visited[j] = false;
+        if(idx == tickets.length) return true;
+        
+        for(int i=0; i<tickets.length; i++) {
+            if(!checks[i] && tickets[i][0].equals(start)) {
+                checks[i] = true;
+                if(dfs(idx+1, tickets[i][1], tickets)) return true;
+                checks[i] = false;
             }
         }
+        
+        answer.remove(answer.size() - 1);
+        return false;
     }
 }
+
+
+
+
+
+
