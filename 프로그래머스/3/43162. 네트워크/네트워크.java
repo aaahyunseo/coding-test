@@ -1,20 +1,15 @@
 import java.util.*;
 
 class Solution {
-    int n;
-    int[][] computers;
     boolean[] visited;
     
     public int solution(int n, int[][] computers) {
-        int answer = 0;
-        
-        this.n = n;
-        this.computers = computers;
         visited = new boolean[n];
+        int answer = 0;
         
         for(int i=0; i<n; i++) {
             if(!visited[i]) {
-                dfs(i);
+                dfs(i, computers);
                 answer++;
             }
         }
@@ -22,11 +17,13 @@ class Solution {
         return answer;
     }
     
-    public void dfs(int node) {
-        visited[node] = true;
+    public void dfs(int curr, int[][] computers) {
+        visited[curr] = true;
         
-        for(int i=0; i<n; i++) {
-            if(computers[node][i] == 1 && !visited[i]) dfs(i);
+        for(int i=0; i<computers.length; i++) {
+            if(!visited[i] && computers[i][curr] == 1) {
+                dfs(i, computers);
+            }
         }
     }
 }
