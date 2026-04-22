@@ -4,44 +4,36 @@ class Solution {
     public int[] solution(String[] id_list, String[] report, int k) {
         int[] answer = new int[id_list.length];
         
-        /* 유저 ID와 신고한 ID를 저장*/
-        HashMap<String, ArrayList<String>> users = new HashMap<>();
-        for(String id : id_list) {
-            users.put(id, new ArrayList<>());
+        /* 유저별 신고 횟수 카운팅 */
+        Map<String, Integer> count_map = new HashMap<>();
+        for(String str : id_list) {
+            count_map.put(str, 0);
         }
         
-        /* 신고 당한 유저 ID와 횟수를 저장*/
-        HashMap<String, Integer> counts = new HashMap<>();
-        
+        /* 유저별 신고 유저 리스트 매핑 (중복 제거) */
+        Map<String, Set<String>> report_map = new HashMap<>();
         for(String str : report) {
-            String[] strSplit = str.split(" ");
-            String reporter = strSplit[0];
-            String reported = strSplit[1];
-            
-            if(!users.get(reporter).contains(reported)) {
-                users.get(reporter).add(reported);
-                counts.compute(reported, (key, value) -> value == null ? 1 : value+1);   
+            String[] arr = str.split(" ");
+            String a = arr[0];
+            String b = arr[1];
+            report_map.computeIfAbsent(a, key -> new HashSet<>()).add(b);
+        }
+        
+        /* 유저 신고 내역 카운팅 */
+        for(Map.Entry<String, Set<String>> entry : report_map.entrySet()) {
+            for(String s : entry.getValue()) {
+                count_map.put(s, count_map.get(s) + 1);
             }
         }
         
-        /* 정지된 ID를 저장할 배열 */
-        ArrayList<String> reportedUsers = new ArrayList<>();
-        
-        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-            String key = entry.getKey();
-            int value = entry.getValue();
-            
-            if(value >= k) reportedUsers.add(key);
-        }
-        
-        int idx = 0;
-        /* 유저별 처리 결과 메일 횟수 계산 */
-        for(String id : id_list) {
-            int count = 0;
-            for(String user : reportedUsers) {
-                if(users.get(id).contains(user)) count++;
+        /* 유저별 메일 전송 횟수 카운팅 */
+        for(int i=0; i<id_list.length; i++) {
+            Set<String> set = report_map.get(id_list[i]);
+            if(set != null) {
+                for(String s : set) {
+                    if(count_map.get(s) >= k) answer[i]++;
+                }
             }
-            answer[idx++] = count;
         }
         
         return answer;
