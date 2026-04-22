@@ -1,66 +1,73 @@
 import java.util.*;
 
 class Solution {
+    class Car {
+        int number, start_time, total_time;
+        boolean status;
+        
+        Car(int number, int start_time, int total_time, boolean status) {
+            this.number = number;
+            this.start_time = start_time;
+            this.total_time = total_time;
+            this.status = status;
+        }
+    }
+    
     public int[] solution(int[] fees, String[] records) {
+        int default_min = fees[0];
+        int default_fee = fees[1];
+        int unit_min = fees[2];
+        int unit_fee = fees[3];
         
-        /* 기본시간(분), 기본요금(원), 단위시간(분), 단위요금(원) 변수 선언*/
-        int defaultTime = fees[0];
-        int basicRate = fees[1];
-        int unitTime = fees[2];
-        int unitCharge = fees[3];
+        Map<Integer, Car> map = new TreeMap<>();
         
-        /* 차량별 입차 기록 */
-        Map<String, String> carRec = new HashMap<>();
-        
-        /* 차량별 누적 시간 */
-        TreeMap<String, Integer> charges = new TreeMap<>();
-        
-        /* 입차/출차 처리 로직 */
-        for(String r : records) {
-            String[] str = r.split(" ");
-            String time = str[0];
-            String car = str[1];
-            String record = str[2];
+        for(String record : records) {
+            String[] rec_arr = record.split(" ");
+            String[] time = rec_arr[0].split(":");
+            int hour = Integer.parseInt(time[0]);
+            int min = Integer.parseInt(time[1]);
+            int num = Integer.parseInt(rec_arr[1]);
+            String status = rec_arr[2];
             
-            if(record.equals("IN")) {
-                carRec.put(car,time);
-            } else if(record.equals("OUT")) {
-                int diffTime = getDiffTime(carRec.get(car), time);
-                charges.put(car, charges.getOrDefault(car, 0) + diffTime);
-                carRec.remove(car);
+            Car car = map.computeIfAbsent(num, k -> new Car(num, 0, 0, false));
+            
+            if(status.equals("IN")) {
+                car.start_time = hour*60 + min;
+                car.status = true;
+            } else {
+                // 주차 누적 시간
+                int end_time = hour*60 + min;
+                int total = end_time - car.start_time;
+                car.total_time += total;
+                car.status = false;
             }
         }
         
-        /* 입차 기록만 있고, 출차 기록이 없는 차량 */
-        if(!carRec.isEmpty()) {
-            for(String k : carRec.keySet()) {
-                int diffTime = getDiffTime(carRec.get(k), "23:59");
-                charges.put(k, charges.getOrDefault(k, 0) + diffTime);
+        for(Car car : map.values()) {
+            // 아직 출차 처리 되지 않았을 경우
+            if(car.status) {
+                int end_time = 23*60 + 59;
+                
+                // 주차 누적 시간
+                int total = end_time - car.start_time;
+                car.total_time += total;
+                
+                car.status = false;
             }
         }
         
-        /* 요금 계산 */
+        // 차량별 요금 정산
         ArrayList<Integer> answer = new ArrayList<>();
-        for(Integer v : charges.values()) {
-            int pay = basicRate;
-            if(v > defaultTime) {
-                int plus = (int) Math.ceil((v - defaultTime) / (double) unitTime);
-                pay += plus*unitCharge;
+        
+        for(Car car : map.values()) {
+            if(car.total_time <= default_min) answer.add(default_fee);
+            else {
+                int plus = (int) Math.ceil((double)(car.total_time - default_min) / unit_min) * unit_fee;
+                answer.add(default_fee + plus);
             }
-            answer.add(pay);
         }
         
         return answer.stream().mapToInt(Integer::intValue).toArray();
     }
-    
-    /* 시간 차이 계산 로직 */
-    private int getDiffTime(String inTime, String outTime) {
-        String[] t1 = inTime.split(":");
-        int in = Integer.parseInt(t1[0])*60 + Integer.parseInt(t1[1]);
-        
-        String[] t2 = outTime.split(":");
-        int out = Integer.parseInt(t2[0])*60 + Integer.parseInt(t2[1]);
-        
-        return out - in;
-    }
 }
+
