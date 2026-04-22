@@ -3,38 +3,41 @@ import java.util.*;
 class Solution {
     public int solution(String s) {
         int answer = Integer.MAX_VALUE;
-        int len = s.length();
         
-        if(len==1) return 1;
-        
-        for(int i=1; i<=len/2; i++) {
-            StringBuffer sb = new StringBuffer();
-            String prev = "";
-            int cnt = 1;
-            
-            for(int j=0; j<=len-i; j+=i) {
-                String curr = s.substring(j,j+i);
-                
-                if(prev.equals(curr)) {
-                    cnt++;
-                    continue;
-                } else {
-                    sb.append(cnt > 1 ? cnt+prev : prev);
-                    prev = curr;
-                    cnt = 1;
-                }
-            }
-            
-            sb.append(cnt > 1 ? cnt+prev : prev);
-            
-            if(len%i != 0) {
-                sb.append(s.substring(len-len%i, len));
-            }
-            
-            answer = Math.min(answer, sb.length());
-            sb = new StringBuffer();
+        for(int i=1; i<=s.length(); i++) {
+            answer = Math.min(answer, split(s, i));
         }
         
         return answer;
     }
+    
+    public int split(String str, int n) {
+        StringBuilder sb = new StringBuilder();
+        
+        String curr = str.substring(0, n);
+        int cnt = 1;
+        
+        for(int i=n; i<str.length(); i+=n) {
+            String next = str.substring(i, Math.min(i+n, str.length()));
+            
+            if(curr.equals(next)) {
+                cnt++;
+            } else {
+                if(cnt > 1) sb.append(cnt).append(curr);
+                else sb.append(curr);
+                cnt = 1; curr = next;
+            }
+        }
+        if(cnt > 1) sb.append(cnt).append(curr);
+        else sb.append(curr);
+        
+        return sb.toString().length();
+    }
 }
+
+
+
+
+
+
+
