@@ -2,34 +2,28 @@ import java.util.*;
 
 class Solution {
     public long solution(int n, int[] times) {
-        long min = 1;
+        Arrays.sort(times);
         long max = (long) times[times.length-1] * n;
+        long min = 0;
         long mid;
-        long sum;
         long answer = 0;
         
-        while(min <= max) {
-            sum = 0;
-            mid = (min + max) / 2;
+        while(max >= min) {
+            mid = (max + min) / 2;
             
+            long total = 0;
             for(int t : times) {
-                sum += mid/t;
+                total += mid/t;
             }
             
-            if(sum >= n) {
+            if(total < n) {
+                min = mid + 1;
+            } else {
                 answer = mid;
                 max = mid - 1;
-            } else {
-                min = mid + 1;
             }
         }
         
         return answer;
     }
 }
-
-
-
-
-
-
