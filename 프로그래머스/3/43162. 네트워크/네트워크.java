@@ -4,35 +4,29 @@ class Solution {
     int[][] computers;
     boolean[] visited;
     int n;
-    int network = 0;
     
     public int solution(int n, int[][] computers) {
         this.computers = computers;
         this.n = n;
         visited = new boolean[n];
         
-        for(int i=0; i<computers.length; i++) {
+        int net = 0;
+        
+        for(int i=0; i<n; i++) {
             if(!visited[i]) {
                 DFS(i);
-                network++;
+                net++;
             }
         }
         
-        return network;
+        return net;
     }
     
-    public void DFS(int net) {
-        visited[net] = true;
+    public void DFS(int x) {
+        visited[x] = true;
         
         for(int i=0; i<n; i++) {
-            if(computers[net][i] == 1 && computers[i][net] == 1) {
-                if(!visited[i]) DFS(i);
-            }
+            if(!visited[i] && computers[i][x] == 1) DFS(i);
         }
     }
 }
-
-
-
-
-
